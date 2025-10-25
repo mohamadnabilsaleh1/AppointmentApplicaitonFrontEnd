@@ -1,7 +1,7 @@
 // hooks/useAuth.ts
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { authService } from '@/services/authService'
-import { LoginRequest, LoginResponse, AuthState, User } from '@/types/auth'
+import { authService } from '@/features/authentication/services/authService'
+import { LoginRequest, LoginResponse, AuthState, User } from '@/features/authentication/types/auth'
 
 export const useLogin = () => {
   const queryClient = useQueryClient()

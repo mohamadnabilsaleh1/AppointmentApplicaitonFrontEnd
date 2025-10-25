@@ -1,8 +1,8 @@
 'use client'
 
 import React, { createContext, useContext, ReactNode } from 'react'
-import { useAuth, useLogin, useLogout } from '@/hooks/useAuth'
-import { LoginRequest, User } from '@/types/auth'
+import { useAuth, useLogin, useLogout } from '@/features/authentication/hooks/useAuth'
+import { LoginRequest, User } from '@/features/authentication/types/auth'
 
 interface AuthContextType {
   login: (credentials: LoginRequest) => Promise<User> // ✅ returns user now

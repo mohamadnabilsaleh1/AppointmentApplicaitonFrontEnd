@@ -1,5 +1,5 @@
 // services/authService.ts
-import { LoginRequest, LoginResponse, User } from '@/types/auth'
+import { LoginRequest, LoginResponse, User } from '@/features/authentication/types/auth'
 
 class AuthService {
     private readonly baseURL = "http://localhost:5001/api"

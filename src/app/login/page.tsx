@@ -1,4 +1,4 @@
-import LoginForm from '@/features/authentication/LoginForm'
+import LoginForm from '@/features/authentication/components/LoginForm'
 import React from 'react'
 
 export default function Page() {

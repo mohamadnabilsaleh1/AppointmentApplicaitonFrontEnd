@@ -3,7 +3,7 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Loader2 } from 'lucide-react'
-import { useAuth } from '@/hooks/useAuth'
+import { useAuth } from '@/features/authentication/hooks/useAuth'
 
 interface ProtectedRouteProps {
   children: React.ReactNode

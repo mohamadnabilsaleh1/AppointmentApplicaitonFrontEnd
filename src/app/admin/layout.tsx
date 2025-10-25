@@ -1,28 +1,34 @@
-// app/admin/layout.tsx
+"use client";
+
 import React from "react";
+import { Home, Users, Settings, Hospital } from "lucide-react";
+import { Header } from "@/components/Header";
+import Sidebar from "@/components/sidebar/Sidebar";
+import { NavItem } from "@/types/navigation";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
-export default function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function Layout({ children }: { children: React.ReactNode }) {
+  const navItems: NavItem[] = [
+    { label: "Home", href: "/", icon: Home },
+    {
+      label: "Health Care Facilities",
+      href: "/health-care-facilities",
+      icon: Hospital,
+    },
+    { label: "User Managements", href: "/user-managements", icon: Users },
+  ];
+  const mainPath = "/admin/dashboard"
+
   return (
-    <div className="min-h-screen flex">
-      {/* Sidebar */}
-      <aside className="w-64 bg-gray-900 text-white p-4">
-        <h2 className="text-xl font-bold mb-4">Admin Panel</h2>
-        <nav className="space-y-2">
-          <a href="/admin/dashboard" className="block hover:text-gray-300">
-            Dashboard
-          </a>
-          <a href="/admin/users" className="block hover:text-gray-300">
-            Manage Users
-          </a>
-        </nav>
-      </aside>
+    <ProtectedRoute requiredRoles={["Admin"]}>
+      <div className="flex min-h-screen bg-background text-foreground">
+        <Sidebar navItems={navItems} mainPath={mainPath} />
 
-      {/* Main Content */}
-      <main className="flex-1 bg-gray-50 p-6">{children}</main>
-    </div>
+        <div className="flex-1 flex flex-col">
+          <Header appName="Admin Dashboard" logoSrc="/logo.png" />
+          <main className="flex-1 p-6">{children}</main>
+        </div>
+      </div>
+    </ProtectedRoute>
   );
 }
