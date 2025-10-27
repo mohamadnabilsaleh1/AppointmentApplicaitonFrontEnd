@@ -19,14 +19,11 @@ import {
 import { Doctor } from "../types/doctor";
 import {
   User,
-  Mail,
   Stethoscope,
-  Calendar,
   MoreVertical,
   Edit,
   Power,
 } from "lucide-react";
-import { getGenderLabel, getSpecializationLabel } from "../constants/doctors";
 
 interface DoctorCardProps {
   doctor: Doctor;
@@ -39,21 +36,17 @@ export function DoctorCard({
   onEdit,
   onToggleStatus,
 }: DoctorCardProps) {
-  const isActive = doctor.IsActive !== false;
-
+  const isActive = doctor.isActive !== false;
   return (
-    <Card className="hover:shadow-lg transition-shadow duration-300">
+    <Card className="hover:shadow-lg transition-shadow duration-300" key={doctor.id}>
       <CardHeader className="pb-4">
         <div className="flex justify-between items-start">
           <div className="space-y-1 flex-1">
             <CardTitle className="flex items-center gap-2 text-lg font-semibold">
               <User className="h-5 w-5" />
-              {doctor.FirstName} {doctor.LastName}
+              {doctor.firstName} {doctor.lastName}
             </CardTitle>
-            <CardDescription className="flex items-center gap-2 text-sm">
-              <Mail className="h-4 w-4" />
-              {doctor.Email}
-            </CardDescription>
+            
           </div>
 
           <div className="flex items-center gap-2">
@@ -72,10 +65,7 @@ export function DoctorCard({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => onEdit(doctor)}>
-                  <Edit className="mr-2 h-4 w-4" />
-                  Edit
-                </DropdownMenuItem>
+                
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => onToggleStatus(doctor)}>
                   <Power className="mr-2 h-4 w-4" />
@@ -93,7 +83,7 @@ export function DoctorCard({
           <div>
             <p className="text-sm font-medium">Specialization</p>
             <p className="text-sm text-muted-foreground">
-              {getSpecializationLabel(parseInt(doctor.Specialization))}
+              {doctor.specialization}
             </p>
           </div>
         </div>
@@ -103,20 +93,12 @@ export function DoctorCard({
           <div>
             <p className="text-sm font-medium">Gender & Age</p>
             <p className="text-sm text-muted-foreground">
-              {getGenderLabel(parseInt(doctor.Gender))} • {doctor.Age} years
+              {doctor.gender} • {doctor.age} years
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <Calendar className="h-4 w-4 text-muted-foreground" />
-          <div>
-            <p className="text-sm font-medium">License</p>
-            <p className="text-sm text-muted-foreground font-mono">
-              {doctor.LicenseNumber}
-            </p>
-          </div>
-        </div>
+        
       </CardContent>
     </Card>
   );

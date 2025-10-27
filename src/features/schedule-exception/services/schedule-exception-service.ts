@@ -1,14 +1,14 @@
-// services/doctor-service.ts
+// src/features/schedule-exceptions/services/schedule-exception-service.ts
 import {
-    Doctor,
-    DoctorsResponse,
-    CreateDoctorRequest,
-    DoctorsQueryParams,
-  } from '../types/doctor';
+    ScheduleException,
+    ScheduleExceptionsResponse,
+    CreateScheduleExceptionRequest,
+    ScheduleExceptionsQueryParams,
+  } from '../types/schedule-exception';
   
   const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5001';
   
-  class DoctorService {
+  class ScheduleExceptionService {
     private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
       const url = `${BASE_URL}/api/${endpoint}`;
       
@@ -45,10 +45,10 @@ import {
       return response.json() as Promise<T>;
     }
   
-    async getDoctors(
-      params: DoctorsQueryParams,
+    async getMyScheduleExceptions(
+      params: ScheduleExceptionsQueryParams,
       token: string,
-    ): Promise<DoctorsResponse> {
+    ): Promise<ScheduleExceptionsResponse> {
       const headers: HeadersInit = {
         Authorization: `Bearer ${token}`,
       };
@@ -57,88 +57,70 @@ import {
       searchParams.append('page', params.page.toString());
       searchParams.append('pageSize', params.pageSize.toString());
   
-      if (params.q) {
-        searchParams.append('q', params.q);
+      if (params.dateFrom) {
+        searchParams.append('dateFrom', params.dateFrom);
       }
-      if (params.specialization) {
-        searchParams.append('specialization', params.specialization);
+      if (params.dateTo) {
+        searchParams.append('dateTo', params.dateTo);
       }
-      if (params.sort) {
-        searchParams.append('sort', params.sort);
-      }
-      
-      const data =this.request<DoctorsResponse>(
-        `health-care-facilities/me/doctors?${searchParams.toString()}`,
+  
+      return this.request<ScheduleExceptionsResponse>(
+        `health-care-facilities/me/schedule-exceptions?${searchParams.toString()}`,
         { headers },
       );
-      console.log(await data)
-      return await data;
     }
   
-    async getDoctorById(id: string, token: string): Promise<Doctor> {
+    async getScheduleExceptionById(id: string, token: string): Promise<ScheduleException> {
       const headers: HeadersInit = {
         Authorization: `Bearer ${token}`,
       };
   
-      return this.request<Doctor>(`doctors/${id}`, { headers });
+      return this.request<ScheduleException>(`health-care-facilities/me/schedule-exceptions/${id}`, { headers });
     }
   
-    async createDoctor(
-      data: CreateDoctorRequest,
+    async createScheduleException(
+      data: CreateScheduleExceptionRequest,
       token: string,
-    ): Promise<Doctor> {
+    ): Promise<ScheduleException> {
       const headers: HeadersInit = {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
-        'Accept': 'application/json',
       };
   
-      return this.request<Doctor>('health-care-facilities/me/doctors', {
+      return this.request<ScheduleException>('health-care-facilities/me/schedule-exceptions', {
         method: 'POST',
         headers,
         body: JSON.stringify(data),
       });
     }
   
-    async updateDoctor(
+    async updateScheduleException(
       id: string,
-      data: Partial<CreateDoctorRequest>,
+      data: CreateScheduleExceptionRequest,
       token: string,
-    ): Promise<Doctor> {
+    ): Promise<ScheduleException> {
       const headers: HeadersInit = {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
-        'Accept': 'application/json',
       };
   
-      return this.request<Doctor>(`doctors/${id}`, {
+      return this.request<ScheduleException>(`health-care-facilities/me/schedule-exceptions/${id}`, {
         method: 'PUT',
         headers,
         body: JSON.stringify(data),
       });
     }
   
-    async activateDoctor(id: string, token: string): Promise<void> {
+    async deleteScheduleException(id: string, token: string): Promise<void> {
       const headers: HeadersInit = {
         Authorization: `Bearer ${token}`,
       };
   
-      await this.request(`doctors/${id}/activate`, {
-        method: 'PATCH',
-        headers,
-      });
-    }
-  
-    async deactivateDoctor(id: string, token: string): Promise<void> {
-      const headers: HeadersInit = {
-        Authorization: `Bearer ${token}`,
-      };
-  
-      await this.request(`doctors/${id}/deactivate`, {
+      await this.request(`health-care-facilities/me/schedule-exceptions/${id}`, {
         method: 'DELETE',
         headers,
       });
     }
   }
   
-  export const doctorService = new DoctorService();
+  export const scheduleExceptionService = new ScheduleExceptionService();

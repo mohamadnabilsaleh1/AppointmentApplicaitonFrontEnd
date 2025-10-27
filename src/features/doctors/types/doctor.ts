@@ -1,18 +1,13 @@
 // src/types/doctor.ts
 export interface Doctor {
-    Id: string;
-    HealthCareFacilityId: string;
-    FirstName: string;
-    LastName: string;
-    Email: string;
-    Gender: string;
-    Specialization: string;
-    Age: number;
-    LicenseNumber: string;
-    DateOfBirth: string;
-    IsActive: boolean;
-    CreatedAt: string;
-    UpdatedAt: string;
+    id: string;
+    healthCareFacilityId: string;
+    firstName: string;
+    lastName: string;
+    gender: string;
+    specialization: string;
+    age: number;
+    isActive?:boolean
   }
   
   export interface DoctorsResponse {

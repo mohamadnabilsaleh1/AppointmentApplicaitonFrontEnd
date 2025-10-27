@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -42,6 +42,7 @@ interface DoctorFormProps {
   onCancel: () => void;
   isLoading?: boolean;
   isEdit?: boolean;
+  resetForm?: boolean; // Add this prop to trigger reset from parent
 }
 
 export function DoctorForm({
@@ -50,37 +51,53 @@ export function DoctorForm({
   onCancel,
   isLoading = false,
   isEdit = false,
+  resetForm = false, // New prop to control reset from parent
 }: DoctorFormProps) {
+  // Define default values separately for reusability
+  const defaultValues = {
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "12er56ui90MO@",
+    gender: undefined,
+    dateOfBirth: "",
+    specialization: undefined,
+    licenseNumber: "",
+  };
+
   const form = useForm<DoctorFormData | UpdateDoctorFormData>({
     resolver: zodResolver(isEdit ? updateDoctorFormSchema : doctorFormSchema),
-    defaultValues: {
-      firstName: "",
-      lastName: "",
-      email: "",
-      password: "12er56ui90MO@",
-      gender: undefined,
-      dateOfBirth: "",
-      specialization: undefined,
-      licenseNumber: "",
-    },
+    defaultValues,
   });
 
+  // Reset form when doctor changes or when resetForm prop changes
   useEffect(() => {
     if (doctor && isEdit) {
       form.reset({
-        firstName: doctor.FirstName || "",
-        lastName: doctor.LastName || "",
-        email: doctor.Email || "",
-        gender: parseInt(doctor.Gender) || undefined,
-        dateOfBirth: doctor.DateOfBirth || "",
-        specialization: parseInt(doctor.Specialization) || undefined,
-        licenseNumber: doctor.LicenseNumber || "",
+        firstName: doctor.firstName || "",
+        lastName: doctor.lastName || "",
+        gender: parseInt(doctor.gender) || undefined,
+        specialization: parseInt(doctor.specialization) || undefined,
+
+        // Don't include password in edit mode
       });
     }
   }, [doctor, isEdit, form]);
 
+  // Reset form when resetForm prop is true (for successful creation)
+  useEffect(() => {
+    if (resetForm && !isEdit) {
+      form.reset(defaultValues);
+    }
+  }, [resetForm, isEdit, form, defaultValues]);
+
   const handleSubmit = (data: DoctorFormData | UpdateDoctorFormData) => {
     onSubmit(data as CreateDoctorRequest);
+
+    // Reset form after successful submission for create mode
+    if (!isEdit) {
+      form.reset(defaultValues);
+    }
   };
 
   return (
@@ -178,7 +195,10 @@ export function DoctorForm({
                       </FormControl>
                       <SelectContent>
                         {genderOptions.map((gender) => (
-                          <SelectItem key={gender.value} value={gender.value.toString()}>
+                          <SelectItem
+                            key={gender.value}
+                            value={gender.value.toString()}
+                          >
                             {gender.label}
                           </SelectItem>
                         ))}
@@ -205,7 +225,10 @@ export function DoctorForm({
                       </FormControl>
                       <SelectContent>
                         {specializationOptions.map((spec) => (
-                          <SelectItem key={spec.value} value={spec.value.toString()}>
+                          <SelectItem
+                            key={spec.value}
+                            value={spec.value.toString()}
+                          >
                             {spec.label}
                           </SelectItem>
                         ))}
@@ -222,10 +245,7 @@ export function DoctorForm({
                   <FormItem>
                     <FormLabel>Date of Birth *</FormLabel>
                     <FormControl>
-                      <Input
-                        type="date"
-                        {...field}
-                      />
+                      <Input type="date" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -238,10 +258,7 @@ export function DoctorForm({
                   <FormItem>
                     <FormLabel>License Number *</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="Enter license number"
-                        {...field}
-                      />
+                      <Input placeholder="Enter license number" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

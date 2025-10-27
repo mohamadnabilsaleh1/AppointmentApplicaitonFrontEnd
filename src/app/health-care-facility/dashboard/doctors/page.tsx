@@ -30,7 +30,7 @@ import { DoctorCard } from "@/features/doctors/components/doctor-card";
 import { EditDoctorDialog } from "@/features/doctors/components/edit-doctor-dialog";
 import { useAuth } from "@/features/authentication/hooks/useAuth";
 
-export default function Page() {
+export default function DoctorsPage() {
   const { token } = useAuth();
   const { toast } = useToast();
   const [queryParams, setQueryParams] = useState<DoctorsQueryParams>({
@@ -43,13 +43,13 @@ export default function Page() {
   const [editingDoctor, setEditingDoctor] = useState<Doctor | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
-  // Debounce search
+  // Debounce search to avoid too many API calls
   useEffect(() => {
     const timer = setTimeout(() => {
       setQueryParams((prev) => ({
         ...prev,
         q: searchTerm || undefined,
-        page: 1,
+        page: 1, // Reset to first page when searching
       }));
     }, 500);
 
@@ -61,7 +61,7 @@ export default function Page() {
     setQueryParams((prev) => ({
       ...prev,
       specialization: specializationFilter || undefined,
-      page: 1,
+      page: 1, // Reset to first page when filtering
     }));
   }, [specializationFilter]);
 
@@ -80,12 +80,11 @@ export default function Page() {
     error,
     refetch,
     isRefetching,
-  } = useDoctors(queryParams, token);
-  console.log("sdfosnadfonasdfoasdfj============================>");
-  console.log("=========>response", response);
-  const createMutation = useCreateDoctor(token);
-  const updateMutation = useUpdateDoctor(token);
-  const toggleStatusMutation = useToggleDoctorStatus(token);
+  } = useDoctors(queryParams, token || "");
+
+  const createMutation = useCreateDoctor(token || "");
+  const updateMutation = useUpdateDoctor(token || "");
+  const toggleStatusMutation = useToggleDoctorStatus(token || "");
 
   const handleSearchChange = useCallback((value: string) => {
     setSearchTerm(value);
@@ -120,13 +119,13 @@ export default function Page() {
       await createMutation.mutateAsync(data);
       toast({
         title: "Success",
-        description: "Doctor added successfully",
+        description: "Doctor created successfully",
       });
     } catch (error) {
       console.log(error);
       toast({
         title: "Error",
-        description: "Failed to add doctor",
+        description: "Failed to create doctor",
         variant: "destructive",
       });
     }
@@ -142,7 +141,7 @@ export default function Page() {
 
     try {
       await updateMutation.mutateAsync({
-        id: editingDoctor.Id,
+        id: editingDoctor.id,
         data,
       });
       toast({
@@ -161,11 +160,11 @@ export default function Page() {
   };
 
   const handleToggleStatus = async (doctor: Doctor) => {
-    const isCurrentlyActive = doctor.IsActive !== false;
+    const isCurrentlyActive = doctor.isActive !== false;
 
     try {
       await toggleStatusMutation.mutateAsync({
-        id: doctor.Id,
+        id: doctor.id,
         activate: !isCurrentlyActive,
       });
       toast({
@@ -224,6 +223,8 @@ export default function Page() {
       </div>
     );
   }
+  {console.log(response)}
+
 
   return (
     <div className="min-h-screen bg-background py-8">
@@ -233,8 +234,8 @@ export default function Page() {
             <div>
               <h1 className="text-3xl font-bold">Doctors</h1>
               <p className="mt-2 text-sm text-muted-foreground">
-                {response?.pagination?.totalCount || 0} doctor
-                {(response?.pagination?.totalCount || 0) !== 1 ? "s" : ""} found
+                {response?.pagination?.totalCount || response?.data.length} doctor
+                {(response?.pagination?.totalCount || response?.data.length) !== 1 ? "s" : ""} found
               </p>
             </div>
 
@@ -260,7 +261,7 @@ export default function Page() {
           </div>
 
           {/* Search, Filter, and Sort Controls */}
-          <div className="flex flex-col sm:flex-row gap-4 mt-6">
+          {/* <div className="flex flex-col sm:flex-row gap-4 mt-6">
             <DoctorSearch
               searchTerm={searchTerm}
               onSearchChange={handleSearchChange}
@@ -275,7 +276,7 @@ export default function Page() {
 
               <DoctorSort sortBy={sortBy} onSortChange={handleSortChange} />
             </div>
-          </div>
+          </div> */}
 
           {/* Active Filters Display */}
           {(searchTerm || specializationFilter) && (
@@ -293,21 +294,18 @@ export default function Page() {
             </div>
           )}
         </div>
-
         {isLoading ? (
           <DoctorsSkeleton />
         ) : response?.data && response.data.length > 0 ? (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-8">
-            {response.data.map((doctor: Doctor) => (
-              <>
-              {console.log(doctor)}
+            {response.data.map((doctor: any) => (
+             
                 <DoctorCard
-                  key={doctor.Id}
+                  key={doctor.id}
                   doctor={doctor}
                   onEdit={handleEditDoctor}
                   onToggleStatus={handleToggleStatus}
                 />
-              </>
             ))}
           </div>
         ) : (

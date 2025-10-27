@@ -19,6 +19,8 @@ export const genderOptions = [
   ];
   
   export const getGenderLabel = (genderValue: number) => {
+    const newLocal = "gender value =";
+    console.log(newLocal,genderValue)
     const gender = genderOptions.find(g => g.value === genderValue);
     return gender ? gender.label : 'Unknown';
   };

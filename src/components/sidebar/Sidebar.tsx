@@ -18,7 +18,7 @@ export default function Sidebar({ navItems,mainPath }: SidebarProps) {
   };
 
   return (
-    <aside className="flex flex-col w-64 h-screen border-r bg-background">
+    <aside className="flex flex-col w-94 h-screen border-r bg-background">
       <SidebarHeader
         firstName={user?.firstName || "Guest"}
         lastName={user?.lastName || ""}

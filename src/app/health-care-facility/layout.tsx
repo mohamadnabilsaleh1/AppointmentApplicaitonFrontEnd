@@ -1,6 +1,6 @@
 "use client"
 import React from "react";
-import { Home, Hospital, Settings } from "lucide-react";
+import { Home, Hospital, MagnetIcon, HospitalIcon,Users, UserCircle2Icon,DiameterIcon,HistoryIcon } from "lucide-react";
 import { NavItem } from "@/types/navigation";
 import { Header } from "@/components/Header";
 import Sidebar from "@/components/sidebar/Sidebar";
@@ -20,16 +20,36 @@ export default function Layout({
     {
       label: "Doctors",
       href: "/doctors",
-      icon: Hospital,
+      icon: Users,
     },
     {
-      label: "Settings",
-      href: "/settings",
-      icon: Settings,
+      label: "Departments Management",
+      href: "/departments",
+      icon: HospitalIcon,
+    },
+    {
+      label: "Doctor Departments Management",
+      href: "/doctor-departments",
+      icon: UserCircle2Icon,
+    },
+    {
+      label: "Schedules Management",
+      href: "/schedules",
+      icon: DiameterIcon,
+    },
+    {
+      label: "Schedule Exceptions Management",
+      href: "/schedule-exceptions",
+      icon: HistoryIcon,
+    },
+    {
+      label: "Review Management",
+      href: "/review-management",
+      icon: MagnetIcon,
     },
   ];
 
-  const mainPath = "/dashboard";
+  const mainPath = "/health-care-facility/dashboard";
 
   return (
     <ProtectedRoute requiredRoles={["HealthCareFacility"]}>

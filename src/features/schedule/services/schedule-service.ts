@@ -1,14 +1,14 @@
-// services/doctor-service.ts
+// src/features/schedules/services/schedule-service.ts
 import {
-    Doctor,
-    DoctorsResponse,
-    CreateDoctorRequest,
-    DoctorsQueryParams,
-  } from '../types/doctor';
+    Schedule,
+    SchedulesResponse,
+    CreateScheduleRequest,
+    SchedulesQueryParams,
+  } from '../types/schedule';
   
   const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5001';
   
-  class DoctorService {
+  class ScheduleService {
     private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
       const url = `${BASE_URL}/api/${endpoint}`;
       
@@ -45,10 +45,10 @@ import {
       return response.json() as Promise<T>;
     }
   
-    async getDoctors(
-      params: DoctorsQueryParams,
+    async getMySchedules(
+      params: SchedulesQueryParams,
       token: string,
-    ): Promise<DoctorsResponse> {
+    ): Promise<SchedulesResponse> {
       const headers: HeadersInit = {
         Authorization: `Bearer ${token}`,
       };
@@ -57,88 +57,67 @@ import {
       searchParams.append('page', params.page.toString());
       searchParams.append('pageSize', params.pageSize.toString());
   
-      if (params.q) {
-        searchParams.append('q', params.q);
+      if (params.dayOfWeek) {
+        searchParams.append('dayOfWeek', params.dayOfWeek.toString());
       }
-      if (params.specialization) {
-        searchParams.append('specialization', params.specialization);
-      }
-      if (params.sort) {
-        searchParams.append('sort', params.sort);
-      }
-      
-      const data =this.request<DoctorsResponse>(
-        `health-care-facilities/me/doctors?${searchParams.toString()}`,
+  
+      return this.request<SchedulesResponse>(
+        `health-care-facilities/me/schedules?${searchParams.toString()}`,
         { headers },
       );
-      console.log(await data)
-      return await data;
     }
   
-    async getDoctorById(id: string, token: string): Promise<Doctor> {
+    async getScheduleById(id: string, token: string): Promise<Schedule> {
       const headers: HeadersInit = {
         Authorization: `Bearer ${token}`,
       };
   
-      return this.request<Doctor>(`doctors/${id}`, { headers });
+      return this.request<Schedule>(`health-care-facilities/me/schedules/${id}`, { headers });
     }
   
-    async createDoctor(
-      data: CreateDoctorRequest,
+    async createSchedule(
+      data: CreateScheduleRequest,
       token: string,
-    ): Promise<Doctor> {
+    ): Promise<Schedule> {
       const headers: HeadersInit = {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
-        'Accept': 'application/json',
       };
   
-      return this.request<Doctor>('health-care-facilities/me/doctors', {
+      return this.request<Schedule>('health-care-facilities/me/schedules', {
         method: 'POST',
         headers,
         body: JSON.stringify(data),
       });
     }
   
-    async updateDoctor(
+    async updateSchedule(
       id: string,
-      data: Partial<CreateDoctorRequest>,
+      data: CreateScheduleRequest,
       token: string,
-    ): Promise<Doctor> {
+    ): Promise<Schedule> {
       const headers: HeadersInit = {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
-        'Accept': 'application/json',
       };
   
-      return this.request<Doctor>(`doctors/${id}`, {
+      return this.request<Schedule>(`health-care-facilities/me/schedules/${id}`, {
         method: 'PUT',
         headers,
         body: JSON.stringify(data),
       });
     }
   
-    async activateDoctor(id: string, token: string): Promise<void> {
+    async deleteSchedule(id: string, token: string): Promise<void> {
       const headers: HeadersInit = {
         Authorization: `Bearer ${token}`,
       };
   
-      await this.request(`doctors/${id}/activate`, {
-        method: 'PATCH',
-        headers,
-      });
-    }
-  
-    async deactivateDoctor(id: string, token: string): Promise<void> {
-      const headers: HeadersInit = {
-        Authorization: `Bearer ${token}`,
-      };
-  
-      await this.request(`doctors/${id}/deactivate`, {
+      await this.request(`health-care-facilities/me/schedules/${id}`, {
         method: 'DELETE',
         headers,
       });
     }
   }
   
-  export const doctorService = new DoctorService();
+  export const scheduleService = new ScheduleService();
