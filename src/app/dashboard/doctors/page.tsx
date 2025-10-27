@@ -1,44 +1,47 @@
-// page.tsx
-"use client";
+// src/components/doctors-container.tsx
+'use client';
 
 import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { HealthcareFacilityCard } from '@/features/health-care-facility/components/healthcare-facility-card';
-import { HealthcareFacilitiesSkeleton } from '@/features/health-care-facility/components/healthcare-facilities-skeleton';
-import { CreateFacilityDialog } from '@/features/health-care-facility/components/create-facility-dialog';
-import { EditFacilityDialog } from '@/features/health-care-facility/components/edit-facility-dialog';
+
 import { Button } from '@/components/ui/button';
-import { RefreshCw, Building2 } from 'lucide-react';
-import { HealthcareSearch } from '@/features/health-care-facility/components/healthcare-search';
-import { HealthcareCityFilter } from '@/features/health-care-facility/components/healthcare-city-filter';
-import { HealthcareSort } from '@/features/health-care-facility/components/healthcare-sort';
-import { Badge } from "@/components/ui/badge";
+import { RefreshCw, User } from 'lucide-react';
+import { Badge } from "@/components/ui/badge"
 import { DynamicPagination } from '@/components/Pagination';
-import { useAuthContext } from "@/context/AuthContext";
-import { useCreateHealthcareFacility, useHealthcareFacilities, useToggleFacilityStatus, useUpdateHealthcareFacility } from '@/features/health-care-facility/hooks/useHealthcareFacilities';
-import { CreateHealthcareFacilityRequest, HealthcareFacilitiesQueryParams, HealthcareFacility } from '@/features/health-care-facility/types/healthcare-facility';
+import { useCreateDoctor, useDoctors, useToggleDoctorStatus, useUpdateDoctor } from '@/features/doctors/hooks/useDoctors';
+import { CreateDoctorRequest, Doctor, DoctorsQueryParams } from '@/features/doctors/types/doctor';
+import { CreateDoctorDialog } from '@/features/doctors/components/create-doctor-dialog';
+import { DoctorSearch, DoctorSpecializationFilter } from '@/features/doctors/components/doctor-search';
+import { DoctorSort } from '@/features/doctors/components/doctor-sort';
+import { DoctorsSkeleton } from '@/features/doctors/components/doctors-skeleton';
+import { DoctorCard } from '@/features/doctors/components/doctor-card';
+import { EditDoctorDialog } from '@/features/doctors/components/edit-doctor-dialog';
 import { useAuth } from '@/features/authentication/hooks/useAuth';
 
-export default function HealthcareFacilitiesPage() {
-  const { token } = useAuth();
+
+
+
+
+export default function Page() {
+  const {token,isAuthenticated} = useAuth();
   const { toast } = useToast();
-  const [queryParams, setQueryParams] = useState<HealthcareFacilitiesQueryParams>({
+  const [queryParams, setQueryParams] = useState<DoctorsQueryParams>({
     page: 1,
     pageSize: 9,
   });
   const [searchTerm, setSearchTerm] = useState('');
-  const [cityFilter, setCityFilter] = useState('');
+  const [specializationFilter, setSpecializationFilter] = useState('');
   const [sortBy, setSortBy] = useState('name');
-  const [editingFacility, setEditingFacility] = useState<HealthcareFacility | null>(null);
+  const [editingDoctor, setEditingDoctor] = useState<Doctor | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
-  // Debounce search to avoid too many API calls
+  // Debounce search
   useEffect(() => {
     const timer = setTimeout(() => {
       setQueryParams(prev => ({
         ...prev,
         q: searchTerm || undefined,
-        page: 1 // Reset to first page when searching
+        page: 1
       }));
     }, 500);
 
@@ -49,10 +52,10 @@ export default function HealthcareFacilitiesPage() {
   useEffect(() => {
     setQueryParams(prev => ({
       ...prev,
-      city: cityFilter || undefined,
-      page: 1 // Reset to first page when filtering
+      specialization: specializationFilter || undefined,
+      page: 1
     }));
-  }, [cityFilter]);
+  }, [specializationFilter]);
 
   // Update query params when sort changes
   useEffect(() => {
@@ -69,22 +72,22 @@ export default function HealthcareFacilitiesPage() {
     error,
     refetch,
     isRefetching,
-  } = useHealthcareFacilities(queryParams, token || '');
+  } = useDoctors(queryParams, token);
 
-  const createMutation = useCreateHealthcareFacility(token || '');
-  const updateMutation = useUpdateHealthcareFacility(token || '');
-  const toggleStatusMutation = useToggleFacilityStatus(token || '');
+  const createMutation = useCreateDoctor(token);
+  const updateMutation = useUpdateDoctor(token);
+  const toggleStatusMutation = useToggleDoctorStatus(token);
 
   const handleSearchChange = useCallback((value: string) => {
     setSearchTerm(value);
   }, []);
 
-  const handleCityChange = useCallback((city: string) => {
-    setCityFilter(city);
+  const handleSpecializationChange = useCallback((specialization: string) => {
+    setSpecializationFilter(specialization);
   }, []);
 
   const handleClearFilters = useCallback(() => {
-    setCityFilter('');
+    setSpecializationFilter('');
   }, []);
 
   const handleSortChange = useCallback((sort: string) => {
@@ -103,67 +106,67 @@ export default function HealthcareFacilitiesPage() {
     refetch();
   };
 
-  const handleCreateFacility = async (data: CreateHealthcareFacilityRequest) => {
+  const handleCreateDoctor = async (data: CreateDoctorRequest) => {
     try {
       await createMutation.mutateAsync(data);
       toast({
         title: 'Success',
-        description: 'Healthcare facility created successfully',
+        description: 'Doctor added successfully',
       });
     } catch(error) {
       console.log(error)
       toast({
         title: 'Error',
-        description: 'Failed to create healthcare facility',
+        description: 'Failed to add doctor',
         variant: 'destructive',
       });
     }
   };
 
-  const handleEditFacility = (facility: HealthcareFacility) => {
-    setEditingFacility(facility);
+  const handleEditDoctor = (doctor: Doctor) => {
+    setEditingDoctor(doctor);
     setIsEditDialogOpen(true);
   };
 
-  const handleUpdateFacility = async (data: CreateHealthcareFacilityRequest) => {
-    if (!editingFacility) return;
+  const handleUpdateDoctor = async (data: CreateDoctorRequest) => {
+    if (!editingDoctor) return;
 
     try {
       await updateMutation.mutateAsync({
-        id: editingFacility.Id,
+        id: editingDoctor.Id,
         data,
       });
       toast({
         title: 'Success',
-        description: 'Healthcare facility updated successfully',
+        description: 'Doctor updated successfully',
       });
       setIsEditDialogOpen(false);
-      setEditingFacility(null);
+      setEditingDoctor(null);
     } catch {
       toast({
         title: 'Error',
-        description: 'Failed to update healthcare facility',
+        description: 'Failed to update doctor',
         variant: 'destructive',
       });
     }
   };
 
-  const handleToggleStatus = async (facility: HealthcareFacility) => {
-    const isCurrentlyActive = facility.isActive !== false;
+  const handleToggleStatus = async (doctor: Doctor) => {
+    const isCurrentlyActive = doctor.IsActive !== false;
 
     try {
       await toggleStatusMutation.mutateAsync({
-        id: facility.Id,
+        id: doctor.Id,
         activate: !isCurrentlyActive,
       });
       toast({
         title: 'Success',
-        description: `Healthcare facility ${!isCurrentlyActive ? 'activated' : 'deactivated'} successfully`,
+        description: `Doctor ${!isCurrentlyActive ? 'activated' : 'deactivated'} successfully`,
       });
     } catch {
       toast({
         title: 'Error',
-        description: `Failed to ${!isCurrentlyActive ? 'activate' : 'deactivate'} healthcare facility`,
+        description: `Failed to ${!isCurrentlyActive ? 'activate' : 'deactivate'} doctor`,
         variant: 'destructive',
       });
     }
@@ -174,10 +177,10 @@ export default function HealthcareFacilitiesPage() {
       <div className="min-h-screen bg-background py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <Building2 className="mx-auto h-12 w-12 text-muted-foreground" />
+            <User className="mx-auto h-12 w-12 text-muted-foreground" />
             <h3 className="mt-2 text-sm font-medium">Authentication required</h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              Please log in to view healthcare facilities.
+              Please log in to view doctors.
             </p>
           </div>
         </div>
@@ -190,8 +193,8 @@ export default function HealthcareFacilitiesPage() {
       <div className="min-h-screen bg-background py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <Building2 className="mx-auto h-12 w-12 text-muted-foreground" />
-            <h3 className="mt-2 text-sm font-medium">Failed to load facilities</h3>
+            <User className="mx-auto h-12 w-12 text-muted-foreground" />
+            <h3 className="mt-2 text-sm font-medium">Failed to load doctors</h3>
             <p className="mt-1 text-sm text-muted-foreground">
               {error instanceof Error ? error.message : 'An error occurred'}
             </p>
@@ -213,9 +216,9 @@ export default function HealthcareFacilitiesPage() {
         <div className="mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h1 className="text-3xl font-bold">Healthcare Facilities</h1>
+              <h1 className="text-3xl font-bold">Doctors</h1>
               <p className="mt-2 text-sm text-muted-foreground">
-                {response?.pagination?.totalCount || 0} facility
+                {response?.pagination?.totalCount || 0} doctor
                 {(response?.pagination?.totalCount || 0) !== 1 ? 's' : ''} found
               </p>
             </div>
@@ -230,8 +233,8 @@ export default function HealthcareFacilitiesPage() {
                 Refresh
               </Button>
 
-              <CreateFacilityDialog
-                onSave={handleCreateFacility}
+              <CreateDoctorDialog
+                onSave={handleCreateDoctor}
                 isLoading={createMutation.isPending}
               />
             </div>
@@ -239,19 +242,19 @@ export default function HealthcareFacilitiesPage() {
 
           {/* Search, Filter, and Sort Controls */}
           <div className="flex flex-col sm:flex-row gap-4 mt-6">
-            <HealthcareSearch
+            <DoctorSearch
               searchTerm={searchTerm}
               onSearchChange={handleSearchChange}
             />
             
             <div className="flex gap-2">
-              <HealthcareCityFilter
-                city={cityFilter}
-                onCityChange={handleCityChange}
+              <DoctorSpecializationFilter
+                specialization={specializationFilter}
+                onSpecializationChange={handleSpecializationChange}
                 onClear={handleClearFilters}
               />
               
-              <HealthcareSort
+              <DoctorSort
                 sortBy={sortBy}
                 onSortChange={handleSortChange}
               />
@@ -259,16 +262,16 @@ export default function HealthcareFacilitiesPage() {
           </div>
 
           {/* Active Filters Display */}
-          {(searchTerm || cityFilter) && (
+          {(searchTerm || specializationFilter) && (
             <div className="flex flex-wrap gap-2 mt-4">
               {searchTerm && (
                 <Badge variant="secondary" className="px-3 py-1">
                   Search: &quot;{searchTerm}&quot;
                 </Badge>
               )}
-              {cityFilter && (
+              {specializationFilter && (
                 <Badge variant="secondary" className="px-3 py-1">
-                  City: {cityFilter}
+                  Specialization: {specializationFilter}
                 </Badge>
               )}
             </div>
@@ -276,29 +279,29 @@ export default function HealthcareFacilitiesPage() {
         </div>
 
         {isLoading ? (
-          <HealthcareFacilitiesSkeleton />
+          <DoctorsSkeleton />
         ) : response?.data && response.data.length > 0 ? (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-8">
-            {response.data.map((facility: any) => (
-              <HealthcareFacilityCard
-                key={facility.Id}
-                facility={facility}
-                onEdit={handleEditFacility}
+            {response.data.map((doctor: Doctor) => (
+              <DoctorCard
+                key={doctor.Id}
+                doctor={doctor}
+                onEdit={handleEditDoctor}
                 onToggleStatus={handleToggleStatus}
               />
             ))}
           </div>
         ) : (
           <div className="text-center py-12">
-            <Building2 className="mx-auto h-12 w-12 text-muted-foreground" />
-            <h3 className="mt-2 text-sm font-medium">No facilities found</h3>
+            <User className="mx-auto h-12 w-12 text-muted-foreground" />
+            <h3 className="mt-2 text-sm font-medium">No doctors found</h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              {searchTerm || cityFilter 
+              {searchTerm || specializationFilter 
                 ? 'Try adjusting your search or filters' 
-                : 'Get started by creating a new healthcare facility.'
+                : 'Get started by adding a new doctor to your facility.'
               }
             </p>
-            {(searchTerm || cityFilter) && (
+            {(searchTerm || specializationFilter) && (
               <Button 
                 variant="outline" 
                 className="mt-4"
@@ -321,12 +324,12 @@ export default function HealthcareFacilitiesPage() {
           />
         )}
 
-        {editingFacility && (
-          <EditFacilityDialog
-            facility={editingFacility}
+        {editingDoctor && (
+          <EditDoctorDialog
+            doctor={editingDoctor}
             open={isEditDialogOpen}
             onOpenChange={setIsEditDialogOpen}
-            onSave={handleUpdateFacility}
+            onSave={handleUpdateDoctor}
             isLoading={updateMutation.isPending}
           />
         )}
