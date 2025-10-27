@@ -34,7 +34,7 @@ import {
   type ScheduleExceptionFormData,
 } from "../lib/validations";
 import { CreateScheduleExceptionRequest, ScheduleException } from "../types/schedule-exception";
-import { dayOfWeekOptions, statusOptions } from "@/features/department/constants/schedule-constants";
+import { dayOfWeekOptions, statusOptions } from "../constants/schedule-exception-constants";
 
 interface ScheduleExceptionFormProps {
   exception?: ScheduleException;
@@ -56,7 +56,7 @@ export function ScheduleExceptionForm({
       dayOfWeek: undefined,
       startTime: "",
       endTime: "",
-      status: 0,
+      status: 1, // Default to Active (1) as per your API
       reason: "",
     },
   });
@@ -66,8 +66,8 @@ export function ScheduleExceptionForm({
       form.reset({
         date: exception.date,
         dayOfWeek: exception.dayOfWeek,
-        startTime: exception.startTime,
-        endTime: exception.endTime,
+        startTime: exception.startTime?.substring(0, 5) || "", // Convert HH:mm:ss to HH:mm for input
+        endTime: exception.endTime?.substring(0, 5) || "", // Convert HH:mm:ss to HH:mm for input
         status: exception.status,
         reason: exception.reason,
       });
@@ -75,7 +75,15 @@ export function ScheduleExceptionForm({
   }, [exception, form]);
 
   const handleSubmit = (data: ScheduleExceptionFormData) => {
-    onSubmit(data);
+    // Convert times to proper format before submitting
+    const submitData: CreateScheduleExceptionRequest = {
+      ...data,
+      startTime: data.startTime, // Service will format this to HH:mm:ss
+      endTime: data.endTime, // Service will format this to HH:mm:ss
+    };
+    
+    console.log('Submitting schedule exception data:', submitData);
+    onSubmit(submitData);
   };
 
   return (
@@ -173,9 +181,16 @@ export function ScheduleExceptionForm({
                   <FormItem>
                     <FormLabel>Start Time *</FormLabel>
                     <FormControl>
-                      <Input type="time" {...field} />
+                      <Input 
+                        type="time" 
+                        {...field} 
+                        step="1" // Allows seconds if needed
+                      />
                     </FormControl>
                     <FormMessage />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Format: HH:mm (e.g., 08:00, 14:30)
+                    </p>
                   </FormItem>
                 )}
               />
@@ -187,9 +202,16 @@ export function ScheduleExceptionForm({
                   <FormItem>
                     <FormLabel>End Time *</FormLabel>
                     <FormControl>
-                      <Input type="time" {...field} />
+                      <Input 
+                        type="time" 
+                        {...field} 
+                        step="1" // Allows seconds if needed
+                      />
                     </FormControl>
                     <FormMessage />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Format: HH:mm (e.g., 12:00, 17:45)
+                    </p>
                   </FormItem>
                 )}
               />

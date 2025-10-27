@@ -35,7 +35,7 @@ import {
   type ScheduleFormData,
 } from "../lib/validations";
 import { CreateScheduleRequest, Schedule } from "../types/schedule";
-import { dayOfWeekOptions, statusOptions } from "@/features/department/constants/schedule-constants";
+import { dayOfWeekOptions, statusOptions } from "../constants/schedule-constants";
 
 interface ScheduleFormProps {
   schedule?: Schedule;
@@ -56,7 +56,7 @@ export function ScheduleForm({
       dayOfWeek: undefined,
       startTime: "",
       endTime: "",
-      status: 0,
+      status: 1, // Default to Active (1) as per your API
       isAvailable: true,
       note: "",
     },
@@ -66,8 +66,8 @@ export function ScheduleForm({
     if (schedule) {
       form.reset({
         dayOfWeek: schedule.dayOfWeek,
-        startTime: schedule.startTime,
-        endTime: schedule.endTime,
+        startTime: schedule.startTime?.substring(0, 5) || "", // Convert HH:mm:ss to HH:mm for input
+        endTime: schedule.endTime?.substring(0, 5) || "", // Convert HH:mm:ss to HH:mm for input
         status: schedule.status,
         isAvailable: schedule.isAvailable,
         note: schedule.note || "",
@@ -76,7 +76,15 @@ export function ScheduleForm({
   }, [schedule, form]);
 
   const handleSubmit = (data: ScheduleFormData) => {
-    onSubmit(data);
+    // Convert times to proper format before submitting
+    const submitData: CreateScheduleRequest = {
+      ...data,
+      startTime: data.startTime, // Service will format this to HH:mm:ss
+      endTime: data.endTime, // Service will format this to HH:mm:ss
+    };
+    
+    console.log('Submitting schedule data:', submitData);
+    onSubmit(submitData);
   };
 
   return (
@@ -160,9 +168,16 @@ export function ScheduleForm({
                   <FormItem>
                     <FormLabel>Start Time *</FormLabel>
                     <FormControl>
-                      <Input type="time" {...field} />
+                      <Input 
+                        type="time" 
+                        {...field} 
+                        step="1" // Allows seconds if needed
+                      />
                     </FormControl>
                     <FormMessage />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Format: HH:mm (e.g., 08:00, 14:30)
+                    </p>
                   </FormItem>
                 )}
               />
@@ -174,9 +189,16 @@ export function ScheduleForm({
                   <FormItem>
                     <FormLabel>End Time *</FormLabel>
                     <FormControl>
-                      <Input type="time" {...field} />
+                      <Input 
+                        type="time" 
+                        {...field} 
+                        step="1" // Allows seconds if needed
+                      />
                     </FormControl>
                     <FormMessage />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Format: HH:mm (e.g., 12:00, 17:45)
+                    </p>
                   </FormItem>
                 )}
               />

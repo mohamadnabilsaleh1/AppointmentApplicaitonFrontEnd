@@ -7,9 +7,8 @@ export interface ScheduleException {
     endTime: string;
     status: number;
     reason: string;
-    healthCareFacilityId: string;
-
   }
+
   
   export interface ScheduleExceptionsResponse {
     data: ScheduleException[];

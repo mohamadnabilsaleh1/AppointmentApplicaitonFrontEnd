@@ -7,15 +7,14 @@ import { Button } from '@/components/ui/button';
 import { RefreshCw, Calendar, Plus } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import { DynamicPagination } from '@/components/Pagination';
-import { CreateScheduleExceptionRequest, ScheduleException, ScheduleExceptionsQueryParams } from '@/features/schedule-exception/types/schedule-exception';
+
 import { useAuth } from '@/features/authentication/hooks/useAuth';
-import { CreateScheduleExceptionDialog } from '@/features/schedule-exception/components/create-schedule-exception-dialog';
-import { ScheduleExceptionFilter } from '@/features/schedule-exception/components/schedule-exception-filter';
+import { CreateScheduleExceptionRequest, ScheduleException, ScheduleExceptionsQueryParams } from '@/features/schedule-exception/types/schedule-exception';
 import { ScheduleExceptionsSkeleton } from '@/features/schedule-exception/components/schedule-exceptions-skeleton';
 import { ScheduleExceptionCard } from '@/features/schedule-exception/components/schedule-exception-card';
 import { EditScheduleExceptionDialog } from '@/features/schedule-exception/components/edit-schedule-exception-dialog';
 import { useCreateScheduleException, useDeleteScheduleException, useScheduleExceptions, useUpdateScheduleException } from '@/features/schedule-exception/hooks/useScheduleExceptions';
-
+import { CreateScheduleExceptionDialog } from '@/features/schedule-exception/components/create-schedule-exception-dialog';
 
 export default function ScheduleExceptionsPage() {
   const { toast } = useToast();
@@ -28,8 +27,7 @@ export default function ScheduleExceptionsPage() {
   const [editingException, setEditingException] = useState<ScheduleException | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   
-  // Get token from your auth context
-  const { token } = useAuth(); // Replace with your token retrieval
+  const { token } = useAuth();
 
   // Update query params when filters change
   useEffect(() => {
@@ -48,11 +46,11 @@ export default function ScheduleExceptionsPage() {
     error,
     refetch,
     isRefetching,
-  } = useScheduleExceptions(queryParams, token);
+  } = useScheduleExceptions(queryParams, token!);
 
-  const createMutation = useCreateScheduleException(token);
-  const updateMutation = useUpdateScheduleException(token);
-  const deleteMutation = useDeleteScheduleException(token);
+  const createMutation = useCreateScheduleException(token!);
+  const updateMutation = useUpdateScheduleException(token!);
+  const deleteMutation = useDeleteScheduleException(token!);
 
   const handleDateFromChange = useCallback((dateFrom: string) => {
     setDateFromFilter(dateFrom);
@@ -86,11 +84,11 @@ export default function ScheduleExceptionsPage() {
         title: 'Success',
         description: 'Schedule exception created successfully',
       });
-    } catch(error) {
-      console.log(error)
+    } catch(error: any) {
+      console.log('Error creating schedule exception:', error);
       toast({
         title: 'Error',
-        description: 'Failed to create schedule exception',
+        description: error.message || 'Failed to create schedule exception',
         variant: 'destructive',
       });
     }
@@ -115,10 +113,10 @@ export default function ScheduleExceptionsPage() {
       });
       setIsEditDialogOpen(false);
       setEditingException(null);
-    } catch {
+    } catch (error: any) {
       toast({
         title: 'Error',
-        description: 'Failed to update schedule exception',
+        description: error.message || 'Failed to update schedule exception',
         variant: 'destructive',
       });
     }
@@ -131,10 +129,10 @@ export default function ScheduleExceptionsPage() {
         title: 'Success',
         description: 'Schedule exception deleted successfully',
       });
-    } catch {
+    } catch (error: any) {
       toast({
         title: 'Error',
-        description: 'Failed to delete schedule exception',
+        description: error.message || 'Failed to delete schedule exception',
         variant: 'destructive',
       });
     }
@@ -209,7 +207,7 @@ export default function ScheduleExceptionsPage() {
           </div>
 
           {/* Filter Control */}
-          <div className="flex flex-col sm:flex-row gap-4 mt-6">
+          {/* <div className="flex flex-col sm:flex-row gap-4 mt-6">
             <ScheduleExceptionFilter
               dateFrom={dateFromFilter}
               dateTo={dateToFilter}
@@ -217,7 +215,7 @@ export default function ScheduleExceptionsPage() {
               onDateToChange={handleDateToChange}
               onClear={handleClearFilters}
             />
-          </div>
+          </div> */}
 
           {/* Active Filters Display */}
           {(dateFromFilter || dateToFilter) && (

@@ -26,7 +26,7 @@ import {
   Trash2,
   AlertTriangle,
 } from "lucide-react";
-import { getDayOfWeekLabel, getStatusLabel } from "@/features/department/constants/schedule-constants";
+import { getDayOfWeekLabel, getStatusLabel } from "../constants/schedule-exception-constants";
 
 interface ScheduleExceptionCardProps {
   exception: ScheduleException;
@@ -50,7 +50,7 @@ export function ScheduleExceptionCard({
             </CardTitle>
             <CardDescription className="flex items-center gap-2">
               <Calendar className="h-4 w-4" />
-              {getDayOfWeekLabel(exception.dayOfWeek)} • {exception.startTime} - {exception.endTime}
+              {exception.dayOfWeek} • {exception.startTime} - {exception.endTime}
             </CardDescription>
           </div>
 
@@ -80,12 +80,12 @@ export function ScheduleExceptionCard({
       </CardHeader>
 
       <CardContent className="space-y-3">
-        <div className="flex items-center justify-between">
+        {/* <div className="flex items-center justify-between">
           <span className="text-sm font-medium">Status</span>
           <Badge variant="outline" className="text-xs">
             {getStatusLabel(exception.status)}
           </Badge>
-        </div>
+        </div> */}
 
         <div>
           <p className="text-sm font-medium mb-1">Reason</p>
@@ -94,7 +94,7 @@ export function ScheduleExceptionCard({
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        {/* <div className="flex items-center gap-3">
           <Clock className="h-4 w-4 text-muted-foreground" />
           <div>
             <p className="text-sm font-medium">Time</p>
@@ -102,7 +102,7 @@ export function ScheduleExceptionCard({
               {exception.startTime} - {exception.endTime}
             </p>
           </div>
-        </div>
+        </div> */}
 
         <div className="flex flex-wrap gap-1">
           <Badge variant="outline" className="text-xs">

@@ -39,8 +39,7 @@ export function ScheduleCard({
   onEdit,
   onDelete,
 }: ScheduleCardProps) {
-  const isAvailable = schedule.isAvailable;
-
+  const isAvailable = schedule.isActive;
   return (
     <Card className="hover:shadow-lg transition-shadow duration-300">
       <CardHeader className="pb-4">
@@ -57,7 +56,7 @@ export function ScheduleCard({
           </div>
 
           <div className="flex items-center gap-2">
-            <Badge
+            {/* <Badge
               variant={isAvailable ? "default" : "secondary"}
               className="text-xs"
             >
@@ -67,7 +66,7 @@ export function ScheduleCard({
                 <XCircle className="h-3 w-3 mr-1" />
               )}
               {isAvailable ? "Available" : "Unavailable"}
-            </Badge>
+            </Badge> */}
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -96,12 +95,13 @@ export function ScheduleCard({
       </CardHeader>
 
       <CardContent className="space-y-3">
-        <div className="flex items-center justify-between">
+        {/* <div className="flex items-center justify-between">
           <span className="text-sm font-medium">Status</span>
           <Badge variant="outline" className="text-xs">
+            {console.log(schedule.status)}
             {schedule.status}
           </Badge>
-        </div>
+        </div> */}
 
         {schedule.note && (
           <div>
