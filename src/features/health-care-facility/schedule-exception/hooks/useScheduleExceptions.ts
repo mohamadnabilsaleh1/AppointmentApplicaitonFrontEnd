@@ -4,7 +4,7 @@ import { CreateScheduleExceptionRequest, ScheduleExceptionsQueryParams } from '.
 import { scheduleExceptionService } from '../services/schedule-exception-service';
 
 export const scheduleExceptionKeys = {
-  all: ['schedule-exceptions'] as const,
+  all: ['health-care-facility-schedule-exceptions'] as const,
   lists: () => [...scheduleExceptionKeys.all, 'list'] as const,
   list: (params: ScheduleExceptionsQueryParams) => [...scheduleExceptionKeys.lists(), params] as const,
   details: () => [...scheduleExceptionKeys.all, 'detail'] as const,

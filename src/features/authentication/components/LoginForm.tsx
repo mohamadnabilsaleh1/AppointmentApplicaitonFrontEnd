@@ -25,6 +25,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -80,6 +81,11 @@ export default function LoginForm() {
           <CardTitle className="text-2xl font-bold text-center">
             Welcome back
           </CardTitle>
+          {/* <Image 
+          width={200}
+          height={200}
+          alt="no thing"
+          src={"file:///home/kali/Desktop/AppointmentApplication/Uploads/healthCareFacility/08ab65af-cdb4-4f2f-910f-cd45a1ba5eaf/uploads/9fe0f7af-f24c-49e4-8fa5-5ea8871c4ea0.png"} /> */}
           <CardDescription className="text-center">
             Enter your credentials to sign in to your account
           </CardDescription>

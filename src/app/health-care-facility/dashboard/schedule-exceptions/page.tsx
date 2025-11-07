@@ -9,12 +9,12 @@ import { Badge } from "@/components/ui/badge";
 import { DynamicPagination } from '@/components/Pagination';
 
 import { useAuth } from '@/features/authentication/hooks/useAuth';
-import { CreateScheduleExceptionRequest, ScheduleException, ScheduleExceptionsQueryParams } from '@/features/schedule-exception/types/schedule-exception';
-import { ScheduleExceptionsSkeleton } from '@/features/schedule-exception/components/schedule-exceptions-skeleton';
-import { ScheduleExceptionCard } from '@/features/schedule-exception/components/schedule-exception-card';
-import { EditScheduleExceptionDialog } from '@/features/schedule-exception/components/edit-schedule-exception-dialog';
-import { useCreateScheduleException, useDeleteScheduleException, useScheduleExceptions, useUpdateScheduleException } from '@/features/schedule-exception/hooks/useScheduleExceptions';
-import { CreateScheduleExceptionDialog } from '@/features/schedule-exception/components/create-schedule-exception-dialog';
+import { CreateScheduleExceptionRequest, ScheduleException, ScheduleExceptionsQueryParams } from '@/features/health-care-facility/schedule-exception/types/schedule-exception';
+import { ScheduleExceptionsSkeleton } from '@/features/health-care-facility/schedule-exception/components/schedule-exceptions-skeleton';
+import { ScheduleExceptionCard } from '@/features/health-care-facility/schedule-exception/components/schedule-exception-card';
+import { EditScheduleExceptionDialog } from '@/features/health-care-facility/schedule-exception/components/edit-schedule-exception-dialog';
+import { useCreateScheduleException, useDeleteScheduleException, useScheduleExceptions, useUpdateScheduleException } from '@/features/health-care-facility/schedule-exception/hooks/useScheduleExceptions';
+import { CreateScheduleExceptionDialog } from '@/features/health-care-facility/schedule-exception/components/create-schedule-exception-dialog';
 
 export default function ScheduleExceptionsPage() {
   const { toast } = useToast();

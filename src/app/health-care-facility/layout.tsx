@@ -43,6 +43,11 @@ export default function Layout({
       icon: HistoryIcon,
     },
     {
+      label: "Uploads Management",
+      href: "/uploads",
+      icon: HistoryIcon,
+    },
+    {
       label: "Review Management",
       href: "/review-management",
       icon: MagnetIcon,

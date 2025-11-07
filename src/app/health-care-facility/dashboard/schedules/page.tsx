@@ -7,14 +7,14 @@ import { Button } from '@/components/ui/button';
 import { RefreshCw, Calendar, Plus } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import { DynamicPagination } from '@/components/Pagination';
-import { CreateScheduleRequest, Schedule, SchedulesQueryParams } from '@/features/schedule/types/schedule';
+import { CreateScheduleRequest, Schedule, SchedulesQueryParams } from '@/features/health-care-facility/schedule/types/schedule';
 import { useAuth } from '@/features/authentication/hooks/useAuth';
-import { useCreateSchedule, useDeleteSchedule, useSchedules, useUpdateSchedule } from '@/features/schedule/hooks/useSchedules';
-import { CreateScheduleDialog } from '@/features/schedule/components/create-schedule-dialog';
+import { useCreateSchedule, useDeleteSchedule, useSchedules, useUpdateSchedule } from '@/features/health-care-facility/schedule/hooks/useSchedules';
+import { CreateScheduleDialog } from '@/features/health-care-facility/schedule/components/create-schedule-dialog';
 import { getDayOfWeekLabel } from '@/features/department/constants/schedule-constants';
-import { SchedulesSkeleton } from '@/features/schedule/components/schedules-skeleton';
-import { ScheduleCard } from '@/features/schedule/components/schedule-card';
-import { EditScheduleDialog } from '@/features/schedule/components/edit-schedule-dialog';
+import { SchedulesSkeleton } from '@/features/health-care-facility/schedule/components/schedules-skeleton';
+import { ScheduleCard } from '@/features/health-care-facility/schedule/components/schedule-card';
+import { EditScheduleDialog } from '@/features/health-care-facility/schedule/components/edit-schedule-dialog';
 
 
 export default function SchedulesPage() {

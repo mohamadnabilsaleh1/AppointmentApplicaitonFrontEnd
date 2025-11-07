@@ -4,7 +4,7 @@ import { CreateScheduleRequest, SchedulesQueryParams } from '../types/schedule';
 import { scheduleService } from '../services/schedule-service';
 
 export const scheduleKeys = {
-  all: ['schedules'] as const,
+  all: ['health-care-facility-schedules'] as const,
   lists: () => [...scheduleKeys.all, 'list'] as const,
   list: (params: SchedulesQueryParams) => [...scheduleKeys.lists(), params] as const,
   details: () => [...scheduleKeys.all, 'detail'] as const,
