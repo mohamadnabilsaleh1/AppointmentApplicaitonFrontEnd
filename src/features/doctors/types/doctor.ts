@@ -53,3 +53,42 @@ export interface Doctor {
     value: number;
     label: string;
   }
+
+  export interface DoctorForDoctor {
+    Id: string;
+    FirstName: string;
+    LastName: string;
+    Gender: string;
+    Specialization: string;
+    Age: number;
+    PrimaryEmail: string;
+    PrimaryPhone: string;
+    Emails: Array<{
+      id: string;
+      emailAddress: string;
+      label: string;
+      isPrimary: boolean;
+    }>;
+    Phones: Array<{
+      id: string;
+      phoneNumber: string;
+      label: string;
+      isPrimary: boolean;
+    }>;
+  }
+
+
+  export interface DoctorsResponseForDoctor {
+    data: DoctorForDoctor[];
+    pagination: {
+      page: number;
+      pageSize: number;
+      totalCount: number;
+      totalPages: number;
+    };
+    links: Array<{
+      href: string;
+      rel: string;
+      method: string;
+    }>;
+  }

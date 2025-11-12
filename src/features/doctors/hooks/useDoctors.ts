@@ -20,6 +20,15 @@ export const useDoctors = (params: DoctorsQueryParams, token: string) => {
   });
 };
 
+export const useAllDoctors = (params: DoctorsQueryParams, token: string) => {
+  return useQuery({
+    queryKey: doctorKeys.list(params),
+    queryFn: () => doctorService.getAllDoctors(params, token),
+    enabled: !!token,
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
 export const useDoctor = (id: string, token: string) => {
   return useQuery({
     queryKey: doctorKeys.detail(id),

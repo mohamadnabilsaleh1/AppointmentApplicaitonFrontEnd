@@ -4,6 +4,7 @@ import {
     DoctorsResponse,
     CreateDoctorRequest,
     DoctorsQueryParams,
+    DoctorsResponseForDoctor,
   } from '../types/doctor';
   
   const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5001';
@@ -69,6 +70,35 @@ import {
       
       const data =this.request<DoctorsResponse>(
         `health-care-facilities/me/doctors?${searchParams.toString()}`,
+        { headers },
+      );
+      console.log(await data)
+      return await data;
+    }
+    async getAllDoctors(
+      params: DoctorsQueryParams,
+      token: string,
+    ): Promise<DoctorsResponseForDoctor> {
+      const headers: HeadersInit = {
+        Authorization: `Bearer ${token}`,
+      };
+  
+      const searchParams = new URLSearchParams();
+      searchParams.append('page', params.page.toString());
+      searchParams.append('pageSize', params.pageSize.toString());
+  
+      if (params.q) {
+        searchParams.append('q', params.q);
+      }
+      if (params.specialization) {
+        searchParams.append('specialization', params.specialization);
+      }
+      if (params.sort) {
+        searchParams.append('sort', params.sort);
+      }
+      
+      const data =this.request<DoctorsResponseForDoctor>(
+        `doctors?${searchParams.toString()}`,
         { headers },
       );
       console.log(await data)

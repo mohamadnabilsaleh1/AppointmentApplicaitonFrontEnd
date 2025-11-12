@@ -1,8 +1,22 @@
 // src/features/appointments/services/appointment-service.ts
-import { Appointment, AppointmentDetailsDto, AppointmentCompletionDto, AppointmentsQueryParams, AppointmentsResponse, AppointmentStatus, AppointmentDetails } from '../types/appointment';
+import { 
+  Appointment, 
+  AppointmentDetails, 
+  AppointmentCompletionDto, 
+  AppointmentsQueryParams, 
+  AppointmentsResponse, 
+  AppointmentStatus
+} from '../types/appointment';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5001';
 
+export interface CreateAppointmentRequest {
+  patientId: string;
+  scheduledDate: string;
+  scheduledTime: string;
+  durationMinutes: number;
+  notes?: string;
+}
 
 export interface CancelAppointmentRequest {
   cancellationreason: string;
@@ -38,9 +52,9 @@ class AppointmentService {
       try {
         const errorData = await response.json();
         errorMessage = errorData.title || errorData.detail || errorMessage;
-        } catch {
-          errorMessage = response.statusText || errorMessage;
-        }
+      } catch {
+        errorMessage = response.statusText || errorMessage;
+      }
 
       throw new Error(errorMessage);
     }
@@ -174,6 +188,27 @@ class AppointmentService {
     };
   }
 
+  async createAppointment(
+    data: CreateAppointmentRequest,
+    token: string,
+  ): Promise<Appointment> {
+    const headers: HeadersInit = {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    };
+
+    const response = await this.request<Record<string, unknown>>(
+      'doctors/me/appointments',
+      {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(data),
+      },
+    );
+
+    return this.transformAppointment(response);
+  }
+
   async getAppointmentDetails(
     appointmentId: string,
     token: string,
@@ -247,4 +282,3 @@ class AppointmentService {
 }
 
 export const appointmentService = new AppointmentService();
-

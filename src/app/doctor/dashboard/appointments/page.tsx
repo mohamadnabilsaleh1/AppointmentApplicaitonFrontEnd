@@ -38,7 +38,10 @@ import {
   XCircle,
   MoreVertical,
 } from "lucide-react";
-import { Appointment, AppointmentsQueryParams } from "@/features/appointments/types/appointment";
+import {
+  Appointment,
+  AppointmentsQueryParams,
+} from "@/features/appointments/types/appointment";
 import {
   useAppointments,
   useConfirmAppointment,
@@ -57,6 +60,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { DoctorsSearchDialog } from "@/features/appointments/components/doctors-search-dialog";
 
 type SortField = "scheduledDate" | "scheduledTime" | "status" | "patient";
 type SortDirection = "asc" | "desc";
@@ -86,6 +90,7 @@ export default function AppointmentsManagementPage() {
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
   const [currentPage] = useState(1);
   const [pageSize] = useState(10);
+  const [showDoctorsSearch, setShowDoctorsSearch] = useState(false);
 
   // Query params for API
   const queryParams = useMemo(() => {
@@ -151,7 +156,9 @@ export default function AppointmentsManagementPage() {
           apt.patient.fullName
             .toLowerCase()
             .includes(searchTerm.toLowerCase()) ||
-          apt.patient.nationalID?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          apt.patient.nationalID
+            ?.toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
           apt.doctor.fullName
             .toLowerCase()
             .includes(searchTerm.toLowerCase()) ||
@@ -247,7 +254,9 @@ export default function AppointmentsManagementPage() {
       toast({
         title: "Error",
         description:
-          error instanceof Error ? error.message : "Failed to cancel appointment",
+          error instanceof Error
+            ? error.message
+            : "Failed to cancel appointment",
         variant: "destructive",
       });
     }
@@ -384,14 +393,20 @@ export default function AppointmentsManagementPage() {
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
+            onClick={() => setShowDoctorsSearch(true)}
+            className="ml-2"
+          >
+            <Search className="mr-2 h-4 w-4" />
+            Find Doctors
+          </Button>
+
+          <Button
+            variant="outline"
             onClick={() => refetch()}
             disabled={isRefetching}
           >
             <RefreshCw
-              className={cn(
-                "mr-2 h-4 w-4",
-                isRefetching && "animate-spin"
-              )}
+              className={cn("mr-2 h-4 w-4", isRefetching && "animate-spin")}
             />
             Refresh
           </Button>
@@ -411,7 +426,6 @@ export default function AppointmentsManagementPage() {
           </Button>
         </div>
       </div>
-
       {/* Statistics */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         <div className="p-4 bg-card border rounded-lg">
@@ -424,9 +438,7 @@ export default function AppointmentsManagementPage() {
         </div>
         <div className="p-4 bg-card border rounded-lg">
           <p className="text-sm text-muted-foreground">Confirmed</p>
-          <p className="text-2xl font-bold text-green-600">
-            {stats.confirmed}
-          </p>
+          <p className="text-2xl font-bold text-green-600">{stats.confirmed}</p>
         </div>
         <div className="p-4 bg-card border rounded-lg">
           <p className="text-sm text-muted-foreground">Completed</p>
@@ -439,7 +451,6 @@ export default function AppointmentsManagementPage() {
           <p className="text-2xl font-bold text-red-600">{stats.cancelled}</p>
         </div>
       </div>
-
       {/* Search and Filters */}
       <div className="flex flex-col lg:flex-row gap-4">
         <div className="relative flex-1">
@@ -471,7 +482,10 @@ export default function AppointmentsManagementPage() {
             </SelectContent>
           </Select>
 
-          <Popover open={showStartDatePicker} onOpenChange={setShowStartDatePicker}>
+          <Popover
+            open={showStartDatePicker}
+            onOpenChange={setShowStartDatePicker}
+          >
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
@@ -524,19 +538,24 @@ export default function AppointmentsManagementPage() {
           </Popover>
 
           {(statusFilter !== "all" || endDate || startDate || searchTerm) && (
-            <Button variant="outline" onClick={clearFilters} className="shrink-0">
+            <Button
+              variant="outline"
+              onClick={clearFilters}
+              className="shrink-0"
+            >
               <Filter className="w-4 h-4 mr-2" />
               Clear
             </Button>
           )}
         </div>
       </div>
-
       {/* Content */}
       {isLoading ? (
         <div className="text-center py-12">
           <RefreshCw className="mx-auto h-12 w-12 text-muted-foreground animate-spin" />
-          <h3 className="mt-4 text-lg font-semibold">Loading appointments...</h3>
+          <h3 className="mt-4 text-lg font-semibold">
+            Loading appointments...
+          </h3>
         </div>
       ) : filteredAppointments.length === 0 ? (
         <div className="text-center py-12">
@@ -617,7 +636,9 @@ export default function AppointmentsManagementPage() {
                   <TableCell>{formatTime(appointment.scheduledTime)}</TableCell>
                   <TableCell>
                     <div>
-                      <p className="font-medium">{appointment.patient.fullName}</p>
+                      <p className="font-medium">
+                        {appointment.patient.fullName}
+                      </p>
                       {appointment.patient.nationalID && (
                         <p className="text-xs text-muted-foreground">
                           ID: {appointment.patient.nationalID}
@@ -649,7 +670,11 @@ export default function AppointmentsManagementPage() {
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0"
+                        >
                           <MoreVertical className="h-4 w-4" />
                           <span className="sr-only">Open menu</span>
                         </Button>
@@ -691,14 +716,16 @@ export default function AppointmentsManagementPage() {
           ))}
         </div>
       )}
-
       {/* Appointment Details Dialog */}
       <AppointmentDetailsDialog
         appointmentId={selectedAppointmentId}
         open={showDetailsDialog}
         onOpenChange={setShowDetailsDialog}
+      />{" "}
+      <DoctorsSearchDialog
+        open={showDoctorsSearch}
+        onOpenChange={setShowDoctorsSearch}
       />
     </div>
   );
 }
-

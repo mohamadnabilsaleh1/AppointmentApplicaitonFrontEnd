@@ -42,7 +42,9 @@ import {
   Stethoscope,
   Check,
   ArrowRight,
+  Eye,
 } from "lucide-react";
+import { AppointmentDetailsDialog } from "./appointment-details-dialog";
 
 interface AppointmentCardProps {
   appointment: Appointment;
@@ -52,6 +54,7 @@ interface AppointmentCardProps {
   onComplete: (appointment: Appointment, data: { diagnosis: string; treatmentNotes?: string; followUpInstructions?: string; medicationList?: string; dosageInstructions?: string }) => void;
   onCancel: (appointment: Appointment, reason: string) => void;
   onReschedule?: (appointment: Appointment, newDate: string, newTime: string) => void;
+  onViewDetails?: (appointmentId: string) => void; // Add this prop
 }
 
 export function AppointmentCard({
@@ -60,12 +63,14 @@ export function AppointmentCard({
   onAddPayment,
   onComplete,
   onCancel,
+  onViewDetails,
 }: AppointmentCardProps) {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   const [showRecordDialog, setShowRecordDialog] = useState(false);
   const [showCompleteDialog, setShowCompleteDialog] = useState(false);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [showDetailsDialog, setShowDetailsDialog] = useState(false);
   
   const [paymentAmount, setPaymentAmount] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("cash");
@@ -167,6 +172,14 @@ export function AppointmentCard({
     }
   };
 
+  const handleViewDetails = () => {
+    if (onViewDetails) {
+      onViewDetails(appointment.id);
+    } else {
+      setShowDetailsDialog(true);
+    }
+  };
+
   // Only allow complete when confirmed
   const canComplete = appointment.status === 'Confirmed';
 
@@ -245,8 +258,18 @@ export function AppointmentCard({
                     </>
                   )}
 
+                  {/* Completed & Cancelled Appointments */}
+                  {(appointment.status === 'Completed' || appointment.status === 'Cancelled') && (
+                    <DropdownMenuItem onClick={handleViewDetails}>
+                      <Eye className="mr-2 h-4 w-4" />
+                      View Details
+                    </DropdownMenuItem>
+                  )}
+
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>
+                  
+                  {/* View Details for all appointment types */}
+                  <DropdownMenuItem onClick={handleViewDetails}>
                     <FileText className="mr-2 h-4 w-4" />
                     View Details
                   </DropdownMenuItem>
@@ -313,6 +336,14 @@ export function AppointmentCard({
 
           {/* Quick Actions */}
           <div className="flex flex-wrap gap-2">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={handleViewDetails}
+            >
+              <Eye className="h-3 w-3 mr-1" />
+              View Details
+            </Button>
             <Badge variant="outline" className="flex items-center gap-1">
               <Clock className="h-3 w-3" />
               {appointment.durationMinutes} min
@@ -562,6 +593,13 @@ export function AppointmentCard({
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Appointment Details Dialog */}
+      <AppointmentDetailsDialog
+        appointmentId={appointment.id}
+        open={showDetailsDialog}
+        onOpenChange={setShowDetailsDialog}
+      />
     </>
   );
 }

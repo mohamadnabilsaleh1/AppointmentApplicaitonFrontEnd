@@ -6,18 +6,25 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, Filter, Calendar, Users, Clock, CheckCircle } from "lucide-react";
-import { AppointmentCard } from '@/features/appointments/components/appointment-card';
+import { Search, Filter, Calendar, Users, Clock, CheckCircle, User, Stethoscope } from "lucide-react";
+import { DoctorAppointmentCard } from '@/features/appointments/components/doctor-appointment-card';
+import { AppointmentDetailsDialog } from '@/features/appointments/components/appointment-details-dialog';
 import { Appointment } from '@/features/appointments/types/appointment';
 import { useAppointments, useCancelAppointment, useCompleteAppointment, useConfirmAppointment } from '@/features/appointments/hooks/useAppointments';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from "@/features/authentication/hooks/useAuth";
+import { DoctorsSearchDialog } from "@/features/appointments/components/doctors-search-dialog";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function TodayAppointmentsPage() {
   const { toast } = useToast();
   const { token } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
-
+  const [selectedAppointmentId, setSelectedAppointmentId] = useState<string | null>(null);
+  const [showDetailsDialog, setShowDetailsDialog] = useState(false);
+  const router = useRouter();
+  
   const today = new Date().toISOString().split('T')[0];
   const { data, isLoading, isError, error } = useAppointments({
     startdate: today,
@@ -39,7 +46,10 @@ export default function TodayAppointmentsPage() {
     if (!q) return true;
     const name = apt.patient.fullName.toLowerCase();
     const nationalId = (apt.patient.nationalID || '').toLowerCase();
-    return name.includes(q) || nationalId.includes(q);
+    const doctorName = apt.doctor.fullName.toLowerCase();
+    const facilityName = apt.facility.name.toLowerCase();
+    
+    return name.includes(q) || nationalId.includes(q) || doctorName.includes(q) || facilityName.includes(q);
   });
 
   // Group appointments by status
@@ -47,6 +57,19 @@ export default function TodayAppointmentsPage() {
   const confirmedAppointments = filteredAppointments.filter(apt => apt.status === 'Confirmed');
   const completedAppointments = filteredAppointments.filter(apt => apt.status === 'Completed');
   const cancelledAppointments = filteredAppointments.filter(apt => apt.status === 'Cancelled');
+
+  const handleConfirmAppointment = async (appointment: Appointment) => {
+    try {
+      await confirmMutation.mutateAsync(appointment.id);
+      toast({
+        title: "Appointment Confirmed",
+        description: `Appointment with ${appointment.patient.fullName} has been confirmed.`,
+      });
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : 'Failed to confirm appointment';
+      toast({ title: 'Error', description: message, variant: 'destructive' });
+    }
+  };
 
   const handleCompleteAppointment = async (
     appointment: Appointment,
@@ -78,24 +101,24 @@ export default function TodayAppointmentsPage() {
     }
   };
 
-  // Rescheduling not implemented yet
-
-  const handleCheckInAppointment = async (appointment: Appointment) => {
-    try {
-      await confirmMutation.mutateAsync(appointment.id);
-      toast({
-        title: "Patient Checked In",
-        description: `${appointment.patient.fullName} has been checked in successfully.`,
-      });
-    } catch (e: unknown) {
-      const message = e instanceof Error ? e.message : 'Failed to check in';
-      toast({ title: 'Error', description: message, variant: 'destructive' });
-    }
+  // Add this handler function for viewing details
+  const handleViewDetails = (appointmentId: string) => {
+    setSelectedAppointmentId(appointmentId);
+    setShowDetailsDialog(true);
   };
 
   const totalAppointments = appointments.length;
   const completedCount = completedAppointments.length;
   const pendingCount = pendingAppointments.length;
+  const confirmedCount = confirmedAppointments.length;
+
+  // Quick stats for today
+  const todayStats = [
+    { label: "Total", value: totalAppointments, icon: Users, color: "text-blue-600" },
+    { label: "Pending", value: pendingCount, icon: Clock, color: "text-amber-600" },
+    { label: "Confirmed", value: confirmedCount, icon: User, color: "text-green-600" },
+    { label: "Completed", value: completedCount, icon: CheckCircle, color: "text-purple-600" },
+  ];
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -107,21 +130,31 @@ export default function TodayAppointmentsPage() {
             {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
           </p>
         </div>
-        
+
         <div className="flex items-center gap-2">
-          <Badge variant="secondary" className="px-3 py-1">
-            <Users className="w-4 h-4 mr-1" />
-            Total: {totalAppointments}
-          </Badge>
-          <Badge variant="default" className="px-3 py-1">
-            <CheckCircle className="w-4 h-4 mr-1" />
-            Completed: {completedCount}
-          </Badge>
-          <Badge variant="outline" className="px-3 py-1">
-            <Clock className="w-4 h-4 mr-1" />
-            Pending: {pendingCount}
-          </Badge>
+          <Button
+            variant={"outline"}
+            onClick={()=>router.push("/doctor/dashboard/doctors")}
+          >
+            <Stethoscope className="mr-2 h-4 w-4" />
+            Find Doctors
+          </Button>
         </div>
+      </div>
+
+      {/* Today's Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 cursor-pointer">
+        {todayStats.map((stat, index) => (
+          <div key={index} className="p-4 bg-card border rounded-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">{stat.label}</p>
+                <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
+              </div>
+              <stat.icon className={`h-8 w-8 ${stat.color} opacity-80`} />
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* Search and Filters */}
@@ -129,7 +162,7 @@ export default function TodayAppointmentsPage() {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
           <Input
-            placeholder="Search patients by name or ID..."
+            placeholder="Search by patient name, ID, doctor, or facility..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10"
@@ -145,14 +178,20 @@ export default function TodayAppointmentsPage() {
       {isLoading && (
         <div className="space-y-4">
           <Skeleton className="h-6 w-40" />
-          <Skeleton className="h-24 w-full" />
-          <Skeleton className="h-24 w-full" />
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {[1, 2, 3].map((i) => (
+              <Skeleton key={i} className="h-48 w-full" />
+            ))}
+          </div>
         </div>
       )}
       {isError && (
         <div className="text-center py-12">
           <h3 className="mt-2 text-lg font-semibold">Failed to load appointments</h3>
           <p className="text-muted-foreground">{(error as Error)?.message || 'Please try again later.'}</p>
+          <Button onClick={() => window.location.reload()} className="mt-4">
+            Try Again
+          </Button>
         </div>
       )}
 
@@ -201,25 +240,17 @@ export default function TodayAppointmentsPage() {
               </p>
             </div>
           ) : (
-            filteredAppointments.map((appointment) => (
-              <AppointmentCard
-                key={appointment.id}
-                appointment={appointment}
-                onConfirm={handleCheckInAppointment}
-                onAddPayment={() => toast({ title: 'Payment', description: 'Payment processing not implemented yet.' })}
-                onAddRecord={async (_apt, record) => {
-                  try {
-                    await completeMutation.mutateAsync({ appointmentId: appointment.id, data: { diagnosis: record.diagnosis, treatmentNotes: record.notes, medicationList: record.prescription } });
-                    toast({ title: 'Medical record saved', description: 'Appointment completed successfully.' });
-                  } catch (e: unknown) {
-                    const message = e instanceof Error ? e.message : 'Failed to save record';
-                    toast({ title: 'Error', description: message, variant: 'destructive' });
-                  }
-                }}
-                onComplete={handleCompleteAppointment}
-                onCancel={handleCancelAppointment}
-              />
-            ))
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {filteredAppointments.map((appointment) => (
+                <DoctorAppointmentCard
+                  key={appointment.id}
+                  appointment={appointment}
+                  onConfirm={handleConfirmAppointment}
+                  onCancel={handleCancelAppointment}
+                  onComplete={handleCompleteAppointment}
+                />
+              ))}
+            </div>
           )}
         </TabsContent>
 
@@ -231,55 +262,39 @@ export default function TodayAppointmentsPage() {
               <p className="text-muted-foreground">All appointments are processed</p>
             </div>
           ) : (
-            pendingAppointments.map((appointment) => (
-              <AppointmentCard
-                key={appointment.id}
-                appointment={appointment}
-                onConfirm={handleCheckInAppointment}
-                onAddPayment={() => toast({ title: 'Payment', description: 'Payment processing not implemented yet.' })}
-                onAddRecord={async (_apt, record) => {
-                  try {
-                    await completeMutation.mutateAsync({ appointmentId: appointment.id, data: { diagnosis: record.diagnosis, treatmentNotes: record.notes, medicationList: record.prescription } });
-                    toast({ title: 'Medical record saved', description: 'Appointment completed successfully.' });
-                  } catch (e: unknown) {
-                    const message = e instanceof Error ? e.message : 'Failed to save record';
-                    toast({ title: 'Error', description: message, variant: 'destructive' });
-                  }
-                }}
-                onComplete={handleCompleteAppointment}
-                onCancel={handleCancelAppointment}
-              />
-            ))
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {pendingAppointments.map((appointment) => (
+                <DoctorAppointmentCard
+                  key={appointment.id}
+                  appointment={appointment}
+                  onConfirm={handleConfirmAppointment}
+                  onCancel={handleCancelAppointment}
+                  onComplete={handleCompleteAppointment}
+                />
+              ))}
+            </div>
           )}
         </TabsContent>
 
         <TabsContent value="confirmed" className="space-y-4">
           {confirmedAppointments.length === 0 ? (
             <div className="text-center py-12">
-              <Users className="mx-auto h-12 w-12 text-muted-foreground" />
+              <User className="mx-auto h-12 w-12 text-muted-foreground" />
               <h3 className="mt-4 text-lg font-semibold">No confirmed appointments</h3>
               <p className="text-muted-foreground">No patients checked in yet</p>
             </div>
           ) : (
-            confirmedAppointments.map((appointment) => (
-              <AppointmentCard
-                key={appointment.id}
-                appointment={appointment}
-                onConfirm={handleCheckInAppointment}
-                onAddPayment={() => toast({ title: 'Payment', description: 'Payment processing not implemented yet.' })}
-                onAddRecord={async (_apt, record) => {
-                  try {
-                    await completeMutation.mutateAsync({ appointmentId: appointment.id, data: { diagnosis: record.diagnosis, treatmentNotes: record.notes, medicationList: record.prescription } });
-                    toast({ title: 'Medical record saved', description: 'Appointment completed successfully.' });
-                  } catch (e: unknown) {
-                    const message = e instanceof Error ? e.message : 'Failed to save record';
-                    toast({ title: 'Error', description: message, variant: 'destructive' });
-                  }
-                }}
-                onComplete={handleCompleteAppointment}
-                onCancel={handleCancelAppointment}
-              />
-            ))
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {confirmedAppointments.map((appointment) => (
+                <DoctorAppointmentCard
+                  key={appointment.id}
+                  appointment={appointment}
+                  onConfirm={handleConfirmAppointment}
+                  onCancel={handleCancelAppointment}
+                  onComplete={handleCompleteAppointment}
+                />
+              ))}
+            </div>
           )}
         </TabsContent>
 
@@ -291,25 +306,18 @@ export default function TodayAppointmentsPage() {
               <p className="text-muted-foreground">Completed appointments will appear here</p>
             </div>
           ) : (
-            completedAppointments.map((appointment) => (
-              <AppointmentCard
-                key={appointment.id}
-                appointment={appointment}
-                onConfirm={handleCheckInAppointment}
-                onAddPayment={() => toast({ title: 'Payment', description: 'Payment processing not implemented yet.' })}
-                onAddRecord={async (_apt, record) => {
-                  try {
-                    await completeMutation.mutateAsync({ appointmentId: appointment.id, data: { diagnosis: record.diagnosis, treatmentNotes: record.notes, medicationList: record.prescription } });
-                    toast({ title: 'Medical record saved', description: 'Appointment completed successfully.' });
-                  } catch (e: unknown) {
-                    const message = e instanceof Error ? e.message : 'Failed to save record';
-                    toast({ title: 'Error', description: message, variant: 'destructive' });
-                  }
-                }}
-                onComplete={handleCompleteAppointment}
-                onCancel={handleCancelAppointment}
-              />
-            ))
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {completedAppointments.map((appointment) => (
+                <DoctorAppointmentCard
+                  key={appointment.id}
+                  appointment={appointment}
+                  onConfirm={handleConfirmAppointment}
+                  onCancel={handleCancelAppointment}
+                  onComplete={handleCompleteAppointment}
+                  onViewDetails={handleViewDetails} // Add this prop
+                />
+              ))}
+            </div>
           )}
         </TabsContent>
 
@@ -321,28 +329,27 @@ export default function TodayAppointmentsPage() {
               <p className="text-muted-foreground">No appointments have been cancelled today</p>
             </div>
           ) : (
-            cancelledAppointments.map((appointment) => (
-              <AppointmentCard
-                key={appointment.id}
-                appointment={appointment}
-                onConfirm={handleCheckInAppointment}
-                onAddPayment={() => toast({ title: 'Payment', description: 'Payment processing not implemented yet.' })}
-                onAddRecord={async (_apt, record) => {
-                  try {
-                    await completeMutation.mutateAsync({ appointmentId: appointment.id, data: { diagnosis: record.diagnosis, treatmentNotes: record.notes, medicationList: record.prescription } });
-                    toast({ title: 'Medical record saved', description: 'Appointment completed successfully.' });
-                  } catch (e: unknown) {
-                    const message = e instanceof Error ? e.message : 'Failed to save record';
-                    toast({ title: 'Error', description: message, variant: 'destructive' });
-                  }
-                }}
-                onComplete={handleCompleteAppointment}
-                onCancel={handleCancelAppointment}
-              />
-            ))
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {cancelledAppointments.map((appointment) => (
+                <DoctorAppointmentCard
+                  key={appointment.id}
+                  appointment={appointment}
+                  onConfirm={handleConfirmAppointment}
+                  onCancel={handleCancelAppointment}
+                  onComplete={handleCompleteAppointment}
+                />
+              ))}
+            </div>
           )}
         </TabsContent>
       </Tabs>
+
+      {/* Add Appointment Details Dialog */}
+      <AppointmentDetailsDialog
+        appointmentId={selectedAppointmentId}
+        open={showDetailsDialog}
+        onOpenChange={setShowDetailsDialog}
+      />
     </div>
   );
 }

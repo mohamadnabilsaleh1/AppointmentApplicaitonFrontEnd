@@ -1,6 +1,6 @@
 "use client"
 import React from "react";
-import { Home, Hospital, MagnetIcon, HospitalIcon,Users, UserCircle2Icon,DiameterIcon,HistoryIcon } from "lucide-react";
+import { Home,DollarSignIcon ,Hospital, MagnetIcon, HospitalIcon,Users, UserCircle2Icon,DiameterIcon,HistoryIcon } from "lucide-react";
 import { NavItem } from "@/types/navigation";
 import { Header } from "@/components/Header";
 import Sidebar from "@/components/sidebar/Sidebar";
@@ -16,6 +16,11 @@ export default function Layout({
       label: "Home",
       href: "/",
       icon: Home,
+    },
+    {
+      label: "Profits Dashboard",
+      href: "/profits",
+      icon: DollarSignIcon,
     },
     {
       label: "Doctors",
