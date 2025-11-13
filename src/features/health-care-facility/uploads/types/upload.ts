@@ -3,7 +3,7 @@ export interface Upload {
     id: string;
     title: string;
     description?: string;
-    fileUrl: string;
+    fileURL: string;
     fileType: string;
     fileSize: number;
     localPath:string;

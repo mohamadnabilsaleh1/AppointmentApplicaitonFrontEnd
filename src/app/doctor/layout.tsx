@@ -1,7 +1,7 @@
 "use client"
 // app/admin/layout.tsx
 import React from "react";
-import { DiameterIcon, DatabaseIcon ,HistoryIcon, Home, Hospital, HospitalIcon, MagnetIcon, Settings, UserCircle2Icon, Users } from "lucide-react";
+import { DiameterIcon, DatabaseIcon ,HistoryIcon, Home, AlarmClock ,MagnetIcon, PhoneCall, MessageCircleIcon } from "lucide-react";
 import { NavItem } from "@/types/navigation";
 import { Header } from "@/components/Header";
 import Sidebar from "@/components/sidebar/Sidebar";
@@ -35,9 +35,24 @@ export default function AdminLayout({
       icon: HistoryIcon,
     },
     {
+      label: "Emails Management",
+      href: "/emails",
+      icon: MessageCircleIcon,
+    },
+    {
+      label: "Phones Management",
+      href: "/phones",
+      icon: PhoneCall,
+    },
+    {
       label: "Review Management",
       href: "/review-management",
       icon: MagnetIcon,
+    },
+    {
+      label: "Treatment Capacity Management",
+      href: "/treatment-capacity",
+      icon: AlarmClock,
     },
   ];
 

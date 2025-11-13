@@ -18,7 +18,7 @@ class UploadService {
     const url = `${this.baseUrl}${endpoint}`;
     const config: RequestInit = {
       headers: {
-        'Authorization':"Bearer " +  token,
+        'Authorization': `Bearer ${token}`,
         ...options.headers,
       },
       ...options,
@@ -30,6 +30,12 @@ class UploadService {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
+    // Handle empty responses (like for DELETE operations)
+    const contentType = response.headers.get('content-type');
+    if (response.status === 204 || !contentType || !contentType.includes('application/json')) {
+      return {} as T;
+    }
+
     return response.json();
   }
 
@@ -39,7 +45,7 @@ class UploadService {
     formData.append('file', data.file);
     formData.append('title', data.title);
     formData.append('visibility', data.visibility.toString());
-    
+
     if (data.description) {
       formData.append('description', data.description);
     }
@@ -52,8 +58,7 @@ class UploadService {
 
   // Get all uploads
   async getUploads(token: string): Promise<Upload[]> {
-
-    return await this.request<Upload[]>('/me/uploads', {}, token);
+    return this.request<Upload[]>('/me/uploads', {}, token);
   }
 
   // Get upload by ID
