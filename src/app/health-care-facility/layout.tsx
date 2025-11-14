@@ -54,7 +54,7 @@ export default function Layout({
     },
     {
       label: "Review Management",
-      href: "/review-management",
+      href: "/reviews",
       icon: MagnetIcon,
     },
   ];

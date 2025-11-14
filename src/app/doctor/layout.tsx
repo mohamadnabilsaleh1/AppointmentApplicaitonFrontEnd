@@ -45,11 +45,6 @@ export default function AdminLayout({
       icon: PhoneCall,
     },
     {
-      label: "Review Management",
-      href: "/review-management",
-      icon: MagnetIcon,
-    },
-    {
       label: "Treatment Capacity Management",
       href: "/treatment-capacity",
       icon: AlarmClock,

@@ -67,20 +67,27 @@ class UploadService {
   }
 
   // Update upload
-  async updateUpload(id: string, data: UpdateUploadRequest, token: string): Promise<Upload> {
-    return this.request<Upload>(`/me/uploads/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    }, token);
-  }
+// Update upload - FIXED VERSION
+async updateUpload(id: string, data: UpdateUploadRequest, token: string): Promise<Upload> {
+  return this.request<Upload>(`/me/uploads/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`  // ← إضافة هذا السطر
+    },
+    body: JSON.stringify(data),
+  }, token);
+}
 
   // Delete upload
   async deleteUpload(id: string, token: string): Promise<void> {
     await this.request(`/me/uploads/${id}`, {
       method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`  // ← إضافة هذا السطر
+
+      },
     }, token);
   }
 
