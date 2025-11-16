@@ -1,6 +1,6 @@
 "use client"
 import React from "react";
-import { Home,DollarSignIcon ,Hospital, MagnetIcon, HospitalIcon,Users, UserCircle2Icon,DiameterIcon,HistoryIcon } from "lucide-react";
+import { Home,DollarSignIcon,Projector ,Hospital, MagnetIcon, HospitalIcon,Users, UserCircle2Icon,DiameterIcon,HistoryIcon } from "lucide-react";
 import { NavItem } from "@/types/navigation";
 import { Header } from "@/components/Header";
 import Sidebar from "@/components/sidebar/Sidebar";
@@ -57,6 +57,12 @@ export default function Layout({
       href: "/reviews",
       icon: MagnetIcon,
     },
+    {
+      label: "Profile Management",
+      href: "/profile",
+      icon: Projector,
+    },
+    //profile
   ];
 
   const mainPath = "/health-care-facility/dashboard";

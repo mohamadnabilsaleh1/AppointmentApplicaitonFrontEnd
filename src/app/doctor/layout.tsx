@@ -1,7 +1,7 @@
 "use client"
 // app/admin/layout.tsx
 import React from "react";
-import { DiameterIcon, DatabaseIcon ,HistoryIcon, Home, AlarmClock ,MagnetIcon, PhoneCall, MessageCircleIcon } from "lucide-react";
+import { DiameterIcon, DatabaseIcon ,HistoryIcon, Home, AlarmClock ,MagnetIcon, PhoneCall, MessageCircleIcon, Projector } from "lucide-react";
 import { NavItem } from "@/types/navigation";
 import { Header } from "@/components/Header";
 import Sidebar from "@/components/sidebar/Sidebar";
@@ -48,6 +48,11 @@ export default function AdminLayout({
       label: "Treatment Capacity Management",
       href: "/treatment-capacity",
       icon: AlarmClock,
+    },
+    {
+      label: "Profile Management",
+      href: "/profile",
+      icon: Projector,
     },
   ];
 
